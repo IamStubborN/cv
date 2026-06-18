@@ -1,0 +1,11 @@
+.DS_Store
+tmp/
+node_modules/
+dist/
+output/
+coverage/
+*.log
+private/
+example/private/
+example/*.private.pdf
+example/*.personal.pdf

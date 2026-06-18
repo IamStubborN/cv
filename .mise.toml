@@ -1,0 +1,21 @@
+[tools]
+node = "26.3.0"
+
+[env]
+_.path = ["node_modules/.bin"]
+
+[tasks.install]
+description = "Install project dependencies"
+run = "npm install"
+
+[tasks.test]
+description = "Run unit tests"
+run = "npm test"
+
+[tasks.build]
+description = "Compile TypeScript"
+run = "npm run build"
+
+[tasks.generate]
+description = "Generate all resume PDFs"
+run = "npm run generate:all"

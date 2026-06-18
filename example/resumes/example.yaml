@@ -1,0 +1,58 @@
+id: alex-morgan
+fileName: Alex_Morgan_Backend_Engineer.pdf
+profile:
+  name: Alex Morgan
+  headline: Backend Engineer
+  location: Remote
+  phone: "+1 555 0100"
+  email: alex.morgan@example.com
+  links:
+    - label: LinkedIn
+      url: https://www.linkedin.com/in/alex-morgan-example/
+    - label: GitHub
+      url: https://github.com/alex-morgan-example
+employment:
+  - start: Jan 2022
+    end: Present
+    title: Senior Backend Engineer
+    company: Example Platform Inc.
+    location: Remote
+    summary: "Builds modular backend services for a multi-tenant SaaS platform:"
+    highlights:
+      - Designed REST APIs and event-driven workflows for account, billing, and reporting domains
+      - Improved service reliability by introducing structured errors, request tracing, and integration tests
+      - Maintained reusable backend libraries for configuration, logging, validation, and persistence
+    technologies:
+      - Go
+      - PostgreSQL
+      - Redis
+      - Kubernetes
+  - start: Mar 2019
+    end: Dec 2021
+    title: Software Engineer
+    company: Sample Systems LLC
+    location: Hybrid
+    summary: "Developed internal tools for operations and analytics teams:"
+    highlights:
+      - Built data import workflows, administrative dashboards, and scheduled reporting jobs
+      - Integrated third-party APIs and asynchronous workers for long-running business processes
+      - Supported production services with monitoring, alerting, and release automation
+    technologies:
+      - TypeScript
+      - Node.js
+      - PostgreSQL
+      - Docker
+earlierExperience: []
+skills:
+  - Go
+  - TypeScript
+  - PostgreSQL
+  - Redis
+  - Docker
+  - Kubernetes
+education:
+  - start: Sep 2014
+    end: Jun 2018
+    title: Bachelor of Science, Computer Science
+    institution: Example State University
+    location: Remote
