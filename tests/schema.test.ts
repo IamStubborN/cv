@@ -14,10 +14,19 @@ const minimalResume = {
   },
   employment: [],
   skills: [],
-  education: [],
 };
 
 describe("resumeSchema", () => {
+  test("accepts an optional summary and defaults education to an empty list", () => {
+    const result = resumeSchema.parse({
+      ...minimalResume,
+      summary: "Senior backend engineer focused on Go services.",
+    });
+
+    expect(result.summary).toBe("Senior backend engineer focused on Go services.");
+    expect(result.education).toEqual([]);
+  });
+
   test("accepts compact earlier experience entries", () => {
     const result = resumeSchema.safeParse({
       ...minimalResume,
@@ -42,6 +51,8 @@ describe("resumeSchema", () => {
   test("defaults optional courses to an empty list", () => {
     const result = resumeSchema.parse(minimalResume);
 
+    expect(result.summary).toBe("");
+    expect(result.education).toEqual([]);
     expect(result.courses).toEqual([]);
   });
 });

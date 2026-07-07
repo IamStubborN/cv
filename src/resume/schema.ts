@@ -38,10 +38,11 @@ export const resumeSchema = z
     id: z.string().min(1),
     fileName: z.string().min(1),
     profile: profileSchema,
+    summary: z.string().default(""),
     employment: z.array(employmentSchema),
     earlierExperience: z.array(employmentSchema).default([]),
     skills: z.array(z.string()),
-    education: z.array(datedItemSchema),
+    education: z.array(datedItemSchema).default([]),
     courses: z.array(datedItemSchema).default([]),
   })
   .strict();

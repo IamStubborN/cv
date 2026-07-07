@@ -26,6 +26,7 @@ const baseResume: Resume = {
       },
     ],
   },
+  summary: "",
   employment: [],
   earlierExperience: [],
   skills: [],

@@ -12,6 +12,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import type { Resume } from "../resume/schema.js";
+import { buildSkillRows } from "./skills.js";
 
 const fontPath = (fileName: string) =>
   resolve("node_modules", "@fontsource", "eb-garamond", "files", fileName);
@@ -42,8 +43,8 @@ const TEXT_COLOR = "#212121";
 const NO_LIGATURE_JOINER = "\u200C";
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 28,
-    paddingBottom: 28,
+    paddingTop: 22,
+    paddingBottom: 20,
     paddingHorizontal: PAGE_PADDING_HORIZONTAL,
     fontFamily: "EB Garamond",
     color: TEXT_COLOR,
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   name: {
     fontWeight: 700,
     fontSize: 12.4,
-    marginBottom: 15.5,
+    marginBottom: 11,
   },
   contact: {
     fontWeight: 500,
@@ -67,15 +68,22 @@ const styles = StyleSheet.create({
     color: TEXT_COLOR,
     textDecoration: "underline",
   },
-  core: {
-    fontSize: 8.7,
-    marginTop: 5.2,
+  headerContacts: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    marginTop: 4,
+  },
+  contactSeparator: {
+    fontWeight: 500,
+    fontSize: 9,
   },
   section: {
     borderTopWidth: 0.5,
     borderTopColor: TEXT_COLOR,
     paddingTop: 4.4,
-    marginTop: 15,
+    marginTop: 11,
   },
   firstSection: {
     marginTop: 10.5,
@@ -95,6 +103,23 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     fontSize: 8.5,
   },
+  summaryText: {
+    fontSize: 9.2,
+    lineHeight: 1.18,
+  },
+  skillsGrid: {
+    gap: 1.8,
+  },
+  skillRow: {
+    flexDirection: "row",
+  },
+  skillLabel: {
+    fontWeight: 700,
+    width: 82,
+  },
+  skillValue: {
+    flex: 1,
+  },
   sectionBody: {
     flex: 1,
   },
@@ -105,13 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: TEXT_COLOR,
     textDecoration: "underline",
-  },
-  linksInline: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "space-around",
-    width: "100%",
   },
   linkItem: {
     flexDirection: "row",
@@ -127,10 +145,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   employmentRowLater: {
-    marginTop: 12.2,
+    marginTop: 8.6,
   },
   employmentRowAfterLongRole: {
-    marginTop: 13.8,
+    marginTop: 9,
   },
   courseRowLater: {
     marginTop: 11,
@@ -147,7 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
-    marginBottom: 7.2,
+    marginBottom: 4.6,
   },
   itemTitle: {
     flex: 1,
@@ -172,7 +190,7 @@ const styles = StyleSheet.create({
     width: 78,
   },
   paragraph: {
-    marginBottom: 5,
+    marginBottom: 4.2,
   },
   bulletRow: {
     flexDirection: "row",
@@ -188,7 +206,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   technologies: {
-    marginTop: 3.8,
+    marginTop: 3,
   },
 });
 
@@ -200,11 +218,17 @@ type SectionProps = {
 
 export function ResumeDocument({ resume }: { resume: Resume }) {
   return (
-    <Document title={`${resume.profile.name}, ${resume.profile.headline}`}>
+    <Document
+      title={`${resume.profile.name}, ${resume.profile.headline}`}
+      author={resume.profile.name}
+      subject={resume.profile.headline}
+      keywords={buildKeywords(resume)}
+    >
       <Page size="A4" style={styles.page}>
         <Header resume={resume} />
-        <LinksSection resume={resume} />
-        <ExperienceSection title="Employment History" items={resume.employment} />
+        <SummarySection resume={resume} />
+        <SkillsSection resume={resume} />
+        <ExperienceSection title="Work Experience" items={resume.employment} />
         <ExperienceSection
           title="Earlier Experience"
           items={resume.earlierExperience}
@@ -215,32 +239,56 @@ export function ResumeDocument({ resume }: { resume: Resume }) {
   );
 }
 
+function buildKeywords(resume: Resume) {
+  const values = resume.skills.map((entry) =>
+    entry.includes(":") ? entry.slice(entry.indexOf(":") + 1).trim() : entry,
+  );
+  return values.join(", ");
+}
+
 function Header({ resume }: { resume: Resume }) {
   return (
     <View style={styles.header}>
       <Text style={styles.name}>
         {resume.profile.name}, {resume.profile.headline}
       </Text>
-      <Text style={styles.contact}>
-        {resume.profile.location}, {/* */}
-        <Link src={phoneHref(resume.profile.phone)} style={styles.contactLink}>
-          {resume.profile.phone}
-        </Link>
-        , {/* */}
-        <Link src={`mailto:${resume.profile.email}`} style={styles.contactLink}>
-          {resume.profile.email}
-        </Link>
-      </Text>
-      {resume.skills.length > 0 ? (
-        <Text style={styles.core}>Skills: {resume.skills.join(" | ")}</Text>
-      ) : null}
+      <Text style={styles.contact}>{resume.profile.location}</Text>
+      <View style={styles.headerContacts}>
+        <View style={styles.linkItem}>
+          <LinkIcon label="phone" url="" />
+          <Link src={phoneHref(resume.profile.phone)} style={styles.linksText}>
+            {resume.profile.phone}
+          </Link>
+        </View>
+        <Text style={styles.contactSeparator}>·</Text>
+        <View style={styles.linkItem}>
+          <LinkIcon label="email" url="" />
+          <Link
+            src={`mailto:${resume.profile.email}`}
+            style={styles.linksText}
+          >
+            {resume.profile.email}
+          </Link>
+        </View>
+        {resume.profile.links.map((link) => (
+          <React.Fragment key={link.label}>
+            <Text style={styles.contactSeparator}>·</Text>
+            <View style={styles.linkItem}>
+              <LinkIcon label={link.label} url={link.url} />
+              <Link src={externalHref(link.url)} style={styles.linksText}>
+                {formatLinkText(link)}
+              </Link>
+            </View>
+          </React.Fragment>
+        ))}
+      </View>
     </View>
   );
 }
 
 function Section({ title, children, wrap = true }: SectionProps) {
   const sectionStyle =
-    title === "Links"
+    title === "Summary"
       ? { ...styles.section, ...styles.firstSection }
       : styles.section;
 
@@ -282,16 +330,34 @@ function CompactBlockSection({
   );
 }
 
-function LinksSection({ resume }: { resume: Resume }) {
+function SummarySection({ resume }: { resume: Resume }) {
+  if (!resume.summary) {
+    return null;
+  }
+
   return (
-    <Section title="Links">
-      <View style={styles.linksInline}>
-        {resume.profile.links.map((link) => (
-          <View key={link.label} style={styles.linkItem}>
-            <LinkIcon label={link.label} url={link.url} />
-            <Link src={externalHref(link.url)} style={styles.linksText}>
-              {formatLinkText(link)}
-            </Link>
+    <Section title="Summary">
+      <Text style={styles.summaryText}>{renderPdfText(resume.summary)}</Text>
+    </Section>
+  );
+}
+
+function SkillsSection({ resume }: { resume: Resume }) {
+  const rows = buildSkillRows(resume.skills);
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <Section title="Technical Skills">
+      <View style={styles.skillsGrid}>
+        {rows.map((row) => (
+          <View key={`${row.label}-${row.value}`} style={styles.skillRow}>
+            {row.label ? (
+              <Text style={styles.skillLabel}>{row.label}:</Text>
+            ) : null}
+            <Text style={styles.skillValue}>{renderPdfText(row.value)}</Text>
           </View>
         ))}
       </View>
@@ -301,21 +367,48 @@ function LinksSection({ resume }: { resume: Resume }) {
 
 function LinkIcon({ label, url }: { label: string; url: string }) {
   const normalized = `${label} ${url}`.toLowerCase();
-  const icon =
-    normalized.includes("github") ? (
+  let viewBox = "0 0 24 24";
+  let topOffset = 2.5;
+  let icon: React.ReactElement;
+
+  if (normalized.includes("phone")) {
+    // Bootstrap Icons "telephone-fill" (MIT)
+    viewBox = "0 0 16 16";
+    icon = (
+      <Path
+        fill={TEXT_COLOR}
+        d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"
+      />
+    );
+  } else if (normalized.includes("email")) {
+    // Bootstrap Icons "envelope-fill" (MIT); glyph sits high in its
+    // viewBox, so it needs a larger downward nudge than the others
+    viewBox = "0 0 16 16";
+    topOffset = 2.6;
+    icon = (
+      <Path
+        fill={TEXT_COLOR}
+        d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"
+      />
+    );
+  } else if (normalized.includes("github")) {
+    icon = (
       <Path
         fill={TEXT_COLOR}
         d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.4 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z"
       />
-    ) : (
+    );
+  } else {
+    icon = (
       <Path
         fill={TEXT_COLOR}
         d="M20.4 20.4h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V8.9h3.4v1.6h.1c.5-.9 1.6-1.8 3.3-1.8 3.6 0 4.2 2.3 4.2 5.4v6.3ZM5.3 7.3a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13.1H3.5V8.9h3.6v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.8v20.4C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.8c0-1-.8-1.8-1.8-1.8Z"
       />
     );
+  }
 
   return (
-    <Svg style={styles.linkIcon} viewBox="0 0 24 24">
+    <Svg style={{ ...styles.linkIcon, marginTop: topOffset }} viewBox={viewBox}>
       {icon}
     </Svg>
   );
