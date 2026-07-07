@@ -90,14 +90,10 @@ const styles = StyleSheet.create({
     width: DATE_COLUMN_WIDTH,
     fontWeight: 500,
     fontSize: 8.5,
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
   blockSectionHeader: {
     fontWeight: 500,
     fontSize: 8.5,
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
   sectionBody: {
     flex: 1,
@@ -236,7 +232,7 @@ function Header({ resume }: { resume: Resume }) {
         </Link>
       </Text>
       {resume.skills.length > 0 ? (
-        <Text style={styles.core}>Skills: {resume.skills.join(", ")}</Text>
+        <Text style={styles.core}>Skills: {resume.skills.join(" | ")}</Text>
       ) : null}
     </View>
   );
@@ -294,7 +290,7 @@ function LinksSection({ resume }: { resume: Resume }) {
           <View key={link.label} style={styles.linkItem}>
             <LinkIcon label={link.label} url={link.url} />
             <Link src={externalHref(link.url)} style={styles.linksText}>
-              {link.label}
+              {formatLinkText(link)}
             </Link>
           </View>
         ))}
@@ -436,8 +432,7 @@ function formatDatedItemTitle(
   }
 
   if (sectionTitle === "Education") {
-    const [firstWord, ...rest] = item.institution.split(" ");
-    return `${item.title}, ${firstWord}\n${rest.join(" ")}`;
+    return `${item.title}\n${item.institution}`;
   }
 
   return `${item.title}, ${item.institution}`;
@@ -453,6 +448,10 @@ function externalHref(url: string) {
   }
 
   return `https://${url}`;
+}
+
+function formatLinkText(link: Resume["profile"]["links"][number]) {
+  return link.url.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/i, "");
 }
 
 function phoneHref(phone: string) {
