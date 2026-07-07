@@ -12,6 +12,7 @@ export type GenerationOptions = {
 export type GenerationPlanItem = {
   sourcePath: string;
   outputPath: string;
+  coverLetterOutputPath?: string;
   resume: Resume;
 };
 
@@ -29,6 +30,14 @@ export async function planGeneration(
   return resumes.map(({ sourcePath, resume }) => ({
     sourcePath,
     outputPath: join(options.outputDir, resume.fileName),
+    ...(resume.coverLetter
+      ? {
+          coverLetterOutputPath: join(
+            options.outputDir,
+            resume.coverLetter.fileName,
+          ),
+        }
+      : {}),
     resume,
   }));
 }

@@ -246,7 +246,7 @@ function buildKeywords(resume: Resume) {
   return values.join(", ");
 }
 
-function Header({ resume }: { resume: Resume }) {
+export function Header({ resume }: { resume: Resume }) {
   return (
     <View style={styles.header}>
       <Text style={styles.name}>

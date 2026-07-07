@@ -56,3 +56,10 @@ education:
     title: Bachelor of Science, Computer Science
     institution: Example State University
     location: Remote
+coverLetter:
+  fileName: Alex_Morgan_Cover_Letter.pdf
+  greeting: "Dear Hiring Team,"
+  paragraphs:
+    - "I am a Backend Engineer with several years of experience building services in Go and TypeScript. I am reaching out because I am looking for a role where hands-on system work and a strong engineering culture are valued."
+    - "In my current role I design and operate distributed backends, own core services end to end, and help the engineers around me grow through building. I would welcome the chance to discuss how I can contribute to your team."
+  closing: "Best regards,"

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { planGeneration } from "./generation/planGeneration.js";
+import { renderCoverLetterPdf } from "./pdf/renderCoverLetter.js";
 import { renderResumePdf } from "./pdf/renderResume.js";
 
 const program = new Command();
@@ -28,6 +29,11 @@ program
     for (const item of plan) {
       await renderResumePdf(item.resume, item.outputPath);
       console.log(`Generated ${item.outputPath}`);
+
+      if (item.coverLetterOutputPath) {
+        await renderCoverLetterPdf(item.resume, item.coverLetterOutputPath);
+        console.log(`Generated ${item.coverLetterOutputPath}`);
+      }
     }
   });
 

@@ -55,4 +55,30 @@ describe("resumeSchema", () => {
     expect(result.education).toEqual([]);
     expect(result.courses).toEqual([]);
   });
+
+  test("accepts an optional cover letter with defaults", () => {
+    const result = resumeSchema.parse({
+      ...minimalResume,
+      coverLetter: {
+        fileName: "Person_Cover_Letter.pdf",
+        paragraphs: ["First paragraph.", "Second paragraph."],
+      },
+    });
+
+    expect(result.coverLetter?.greeting).toBe("Dear Hiring Team,");
+    expect(result.coverLetter?.closing).toBe("Best regards,");
+    expect(result.coverLetter?.paragraphs).toHaveLength(2);
+  });
+
+  test("rejects a cover letter without paragraphs", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      coverLetter: {
+        fileName: "Person_Cover_Letter.pdf",
+        paragraphs: [],
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
 });

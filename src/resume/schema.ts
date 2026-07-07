@@ -33,6 +33,13 @@ const datedItemSchema = z.object({
   location: z.string().default(""),
 });
 
+const coverLetterSchema = z.object({
+  fileName: z.string().min(1),
+  greeting: z.string().default("Dear Hiring Team,"),
+  paragraphs: z.array(z.string().min(1)).min(1),
+  closing: z.string().default("Best regards,"),
+});
+
 export const resumeSchema = z
   .object({
     id: z.string().min(1),
@@ -44,7 +51,10 @@ export const resumeSchema = z
     skills: z.array(z.string()),
     education: z.array(datedItemSchema).default([]),
     courses: z.array(datedItemSchema).default([]),
+    coverLetter: coverLetterSchema.optional(),
   })
   .strict();
+
+export type CoverLetter = z.infer<typeof coverLetterSchema>;
 
 export type Resume = z.infer<typeof resumeSchema>;

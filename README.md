@@ -23,6 +23,8 @@ Keep real resumes under `private/resumes/`. The entire `private/` directory is i
 
 Each YAML file controls its own output filename through `fileName`. Use `skills` for the compact `Skills:` line in the header and `employment` for role-by-role experience.
 
+An optional `coverLetter` section generates a matching one-page cover letter (with the same header) alongside the resume. It has its own `fileName`, an optional `greeting` and `closing`, and a list of `paragraphs`. When present, the generator writes both PDFs; when absent, only the resume is produced.
+
 The generator can render a single resume or all resumes in a directory, which makes it useful for maintaining multiple people's CVs in the same project.
 
 ## Privacy Model
