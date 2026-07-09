@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { planGeneration } from "./generation/planGeneration.js";
 import { renderCoverLetterPdf } from "./pdf/renderCoverLetter.js";
 import { renderResumePdf } from "./pdf/renderResume.js";
+import { renderResumeTextFile } from "./text/renderResumeText.js";
 
 const program = new Command();
 
@@ -29,6 +30,9 @@ program
     for (const item of plan) {
       await renderResumePdf(item.resume, item.outputPath);
       console.log(`Generated ${item.outputPath}`);
+
+      await renderResumeTextFile(item.resume, item.atsOutputPath);
+      console.log(`Generated ${item.atsOutputPath}`);
 
       if (item.coverLetterOutputPath) {
         await renderCoverLetterPdf(item.resume, item.coverLetterOutputPath);

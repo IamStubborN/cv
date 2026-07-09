@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@fontsource/eb-garamond": "^5.2.7",
+    "@fontsource/public-sans": "^5.2.7",
+    "@fontsource/source-sans-3": "^5.2.9",
     "@react-pdf/renderer": "^4.5.1",
     "commander": "^15.0.0",
     "react": "^19.2.7",

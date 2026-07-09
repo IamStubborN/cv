@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { discoverResumeFiles, loadResumeFile } from "../resume/loadResume.js";
 import type { Resume } from "../resume/schema.js";
+import { atsOutputPath } from "../text/renderResumeText.js";
 
 export type GenerationOptions = {
   all?: boolean;
@@ -12,6 +13,7 @@ export type GenerationOptions = {
 export type GenerationPlanItem = {
   sourcePath: string;
   outputPath: string;
+  atsOutputPath: string;
   coverLetterOutputPath?: string;
   resume: Resume;
 };
@@ -30,6 +32,7 @@ export async function planGeneration(
   return resumes.map(({ sourcePath, resume }) => ({
     sourcePath,
     outputPath: join(options.outputDir, resume.fileName),
+    atsOutputPath: join(options.outputDir, atsOutputPath(resume.fileName)),
     ...(resume.coverLetter
       ? {
           coverLetterOutputPath: join(

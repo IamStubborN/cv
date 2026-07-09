@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingBottom: 28,
     paddingHorizontal: 45,
-    fontFamily: "EB Garamond",
+    fontFamily: "Public Sans",
     color: "#212121",
     fontSize: 10,
     lineHeight: 1.45,
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   },
   signature: {
     marginTop: 2,
-    fontWeight: 500,
+    fontWeight: 600,
   },
 });
 

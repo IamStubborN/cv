@@ -45,6 +45,57 @@ describe("renderResumePdf", () => {
     expect(output.subarray(0, 5).toString("utf8")).toBe("%PDF-");
   });
 
+  test("extracts ATS-friendly single-column text from the PDF", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "cv-builder-"));
+    const outputPath = join(dir, "out", "Person.pdf");
+    const resume: Resume = {
+      ...baseResume,
+      summary: "Builds reliable backend systems.",
+      skills: ["Languages: Go", "Backend: REST"],
+      employment: [
+        {
+          start: "Jan 2020",
+          end: "Present",
+          title: "Senior Software Engineer",
+          company: "Example Inc",
+          location: "Remote",
+          summary: "Builds modular backend services.",
+          highlights: ["Designed service architecture"],
+          technologies: ["Go", "PostgreSQL"],
+        },
+      ],
+    };
+
+    await renderResumePdf(resume, outputPath);
+
+    const { execSync } = await import("node:child_process");
+    const text = execSync(`pdftotext "${outputPath}" -`, {
+      encoding: "utf8",
+    });
+
+    expect(text).toContain("Languages: Go");
+    expect(text).not.toMatch(/Languages:\s*\n\s*Backend:/);
+    expect(text).toContain("Senior Software Engineer, Example Inc");
+    expect(text).toContain("Jan 2020 - Present");
+  });
+
+  test("extracts header contacts on one line without blank gaps", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "cv-builder-"));
+    const outputPath = join(dir, "out", "Person.pdf");
+
+    await renderResumePdf(baseResume, outputPath);
+
+    const { execSync } = await import("node:child_process");
+    const text = execSync(`pdftotext "${outputPath}" -`, {
+      encoding: "utf8",
+    });
+
+    expect(text).toMatch(
+      /\+1 555\s*·\s*person@example\.com\s*·\s*linkedin\.com\/in\/person\s*·\s*github\.com\/person/,
+    );
+    expect(text).not.toMatch(/\+1 555\s*\n\s*\n\s*person@example\.com/);
+  });
+
   test("creates clickable annotations for profile contact links", async () => {
     const dir = await mkdtemp(join(tmpdir(), "cv-builder-"));
     const outputPath = join(dir, "out", "Person.pdf");
