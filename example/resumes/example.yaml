@@ -1,65 +1,134 @@
 id: alex-morgan
-fileName: Alex_Morgan_Backend_Engineer.pdf
+fileName: Alex_Morgan_Senior_Backend_Engineer.pdf
 profile:
   name: Alex Morgan
-  headline: Backend Engineer
-  location: Remote
-  phone: "+1 555 0100"
+  headline: Senior Backend Engineer
+  location: Austin, TX · Open to remote roles
+  phone: "+1 512 555 0147"
   email: alex.morgan@example.com
   links:
     - label: LinkedIn
       url: https://www.linkedin.com/in/alex-morgan-example/
     - label: GitHub
       url: https://github.com/alex-morgan-example
+    - label: Portfolio
+      url: https://alex-morgan.example.com
+summary: Senior Backend Engineer with 10+ years of experience building distributed systems for multi-tenant SaaS and high-volume data platforms. Expert in Go, TypeScript, PostgreSQL, event-driven architecture, and Kubernetes. Hands-on technical leader with a record of improving reliability, reducing cloud costs, and turning ambiguous requirements into simple, observable, and maintainable services.
 employment:
   - start: Jan 2022
     end: Present
     title: Senior Backend Engineer
-    company: Example Platform Inc.
-    location: Remote
-    summary: "Builds modular backend services for a multi-tenant SaaS platform:"
+    company: Northstar Cloud, Inc.
+    location: Remote, US
+    summary: Lead backend development for billing, identity, and reporting in a multi-tenant B2B SaaS platform serving 4,000+ organizations.
     highlights:
-      - Designed REST APIs and event-driven workflows for account, billing, and reporting domains
-      - Improved service reliability by introducing structured errors, request tracing, and integration tests
-      - Maintained reusable backend libraries for configuration, logging, validation, and persistence
+      - Designed and delivered Go services processing 35M+ API requests per day while maintaining 99.99% availability and predictable p95 latency below 180 ms
+      - Re-architected synchronous billing workflows around Kafka and an outbox pattern, reducing failed transactions by 72% and eliminating duplicate invoice incidents
+      - Cut PostgreSQL query latency by 45% through index redesign, query-plan analysis, partitioning, and targeted caching with Redis
+      - Introduced service-level objectives, distributed tracing, structured logging, and actionable alerts, reducing mean time to recovery from 74 to 28 minutes
+      - Led the migration of 18 services to Kubernetes with safe rollout policies and autoscaling, lowering annual infrastructure spend by approximately $240K
+      - Mentored five engineers, authored architecture decision records, and facilitated design reviews across three product teams
     technologies:
       - Go
+      - TypeScript
       - PostgreSQL
       - Redis
+      - Kafka
       - Kubernetes
-  - start: Mar 2019
+      - AWS
+      - OpenTelemetry
+  - start: Apr 2019
     end: Dec 2021
-    title: Software Engineer
-    company: Sample Systems LLC
-    location: Hybrid
-    summary: "Developed internal tools for operations and analytics teams:"
+    title: Backend Engineer
+    company: Meridian Data Systems
+    location: Denver, CO
+    summary: Built ingestion, normalization, and analytics services for a real-time logistics intelligence platform used by national retailers and carriers.
     highlights:
-      - Built data import workflows, administrative dashboards, and scheduled reporting jobs
-      - Integrated third-party APIs and asynchronous workers for long-running business processes
-      - Supported production services with monitoring, alerting, and release automation
+      - Developed event-driven services that processed 1.2B shipment status events per month with idempotent consumers and replayable pipelines
+      - Increased ingestion throughput by 3.4x by profiling hot paths, batching writes, and introducing controlled concurrency and backpressure
+      - Designed a versioned REST and gRPC API adopted by eight internal teams and more than 20 external integration partners
+      - Implemented zero-downtime schema migrations and automated data-quality checks, reducing deployment-related incidents by 60%
+      - Built integration-test environments with Testcontainers and contract tests, cutting regression escapes by 38%
+    technologies:
+      - Go
+      - Python
+      - gRPC
+      - PostgreSQL
+      - Kafka
+      - Docker
+      - Terraform
+      - Google Cloud
+  - start: Jul 2016
+    end: Mar 2019
+    title: Software Engineer
+    company: Harbor Financial Technology
+    location: Chicago, IL
+    summary: Developed secure payment and reconciliation services for a regulated financial technology platform.
+    highlights:
+      - Built TypeScript and Node.js services supporting $80M+ in monthly payment volume across card and ACH providers
+      - Automated daily reconciliation and exception handling, saving operations teams approximately 30 hours of manual work per week
+      - Implemented role-based access control, audit trails, secrets rotation, and encryption controls used during successful SOC 2 assessments
+      - Improved CI pipelines with parallel test execution and reproducible Docker builds, reducing median lead time from 52 to 19 minutes
     technologies:
       - TypeScript
       - Node.js
       - PostgreSQL
+      - RabbitMQ
       - Docker
-earlierExperience: []
+      - AWS
+      - GitHub Actions
+earlierExperience:
+  - start: Jun 2014
+    end: Jun 2016
+    title: Junior Software Engineer
+    company: Brightline Digital
+    location: Austin, TX
+    summary: Delivered customer portals, internal administration tools, and third-party integrations for small and mid-sized businesses.
+    highlights:
+      - Shipped more than 20 production features across Node.js applications and REST APIs in close collaboration with design and product teams
+      - Replaced manual deployment checklists with scripted releases and smoke tests, reducing release time from two hours to under 25 minutes
+    technologies:
+      - JavaScript
+      - Node.js
+      - Express
+      - MySQL
+      - Redis
+      - Linux
 skills:
-  - Go
-  - TypeScript
-  - PostgreSQL
-  - Redis
-  - Docker
-  - Kubernetes
+  - "Languages: Go, TypeScript, JavaScript, Python, SQL, Bash"
+  - "Backend: REST, gRPC, GraphQL, microservices, distributed systems, event-driven architecture"
+  - "Data: PostgreSQL, MySQL, Redis, Kafka, RabbitMQ, database design, query optimization"
+  - "Cloud & Infrastructure: AWS, Google Cloud, Kubernetes, Docker, Terraform, Helm"
+  - "Reliability & Security: OpenTelemetry, Prometheus, Grafana, SLOs, incident response, OAuth 2.0, RBAC"
+  - "Engineering Practices: system design, API design, automated testing, CI/CD, code review, technical mentoring"
 education:
-  - start: Sep 2014
-    end: Jun 2018
-    title: Bachelor of Science, Computer Science
-    institution: Example State University
-    location: Remote
+  - start: Sep 2010
+    end: May 2014
+    title: Bachelor of Science in Computer Science, Magna Cum Laude
+    institution: Texas State University
+    location: San Marcos, TX
+courses:
+  - start: Mar 2024
+    end: May 2024
+    title: Designing Data-Intensive Applications
+    institution: O'Reilly Learning
+    location: Online
+  - start: Sep 2022
+    end: Nov 2022
+    title: Kubernetes Administration and Production Operations
+    institution: Linux Foundation Training
+    location: Online
+  - start: Feb 2021
+    end: Apr 2021
+    title: Site Reliability Engineering Fundamentals
+    institution: Google Cloud Skills Boost
+    location: Online
 coverLetter:
   fileName: Alex_Morgan_Cover_Letter.pdf
   greeting: "Dear Hiring Team,"
   paragraphs:
-    - "I am a Backend Engineer with several years of experience building services in Go and TypeScript. I am reaching out because I am looking for a role where hands-on system work and a strong engineering culture are valued."
-    - "In my current role I design and operate distributed backends, own core services end to end, and help the engineers around me grow through building. I would welcome the chance to discuss how I can contribute to your team."
+    - "I am a Senior Backend Engineer with more than ten years of experience building reliable distributed systems for SaaS, logistics, and financial technology products. I am interested in joining a team where backend engineering is treated as a product discipline: grounded in customer outcomes, thoughtful system design, measurable reliability, and sustainable delivery."
+    - "At Northstar Cloud, I lead backend work across billing, identity, and reporting for a platform serving more than 4,000 organizations. I have designed Go services handling over 35 million daily requests, helped maintain 99.99% availability, reduced failed billing transactions by 72%, and lowered annual infrastructure costs by approximately $240,000. I remain hands-on throughout the lifecycle, from architecture and implementation to observability, incident response, and continuous improvement."
+    - "My strongest contributions come at the intersection of technical depth and practical collaboration. I enjoy turning ambiguous requirements into clear service boundaries and dependable delivery plans, while helping other engineers grow through design reviews, pairing, documentation, and direct feedback. I care about simple interfaces, explicit failure modes, useful tests, and operational signals that make systems easier to own."
+    - "I would welcome the opportunity to discuss how my experience with Go, TypeScript, PostgreSQL, Kafka, Kubernetes, and cloud infrastructure could help your team build and operate dependable products at scale. Thank you for your time and consideration."
   closing: "Best regards,"
