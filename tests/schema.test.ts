@@ -228,6 +228,16 @@ describe("resumeSchema", () => {
     },
   );
 
+  test("accepts a bare year that YAML parses as a number", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jan 2019", "Present"), start: 2019, end: 2020 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0]).toMatchObject({ start: "2019", end: "2020" });
+  });
+
   test("rejects an invalid month number in an ISO-style date", () => {
     const result = resumeSchema.safeParse({
       ...minimalResume,

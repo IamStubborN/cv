@@ -72,10 +72,11 @@ function normalizeDate(value: string): string {
 
 const DATE_FORMAT_HINT = "'YYYY' (2020), 'Mon YYYY' (Jan 2020), 'January 2020' or '2020-01'";
 
+/** YAML parses a bare year as a number, so numeric input is coerced before normalization. */
 function dateSchema(pattern: RegExp, message: string) {
   return z
-    .string()
-    .transform(normalizeDate)
+    .union([z.string(), z.number()])
+    .transform((value) => normalizeDate(String(value)))
     .pipe(z.string().regex(pattern, message));
 }
 
