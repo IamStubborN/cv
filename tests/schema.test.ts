@@ -91,7 +91,7 @@ describe("resumeSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  test("accepts Present only as an end date", () => {
+  test("accepts Present as a valid end date", () => {
     const result = resumeSchema.safeParse({
       ...minimalResume,
       employment: [
@@ -103,20 +103,31 @@ describe("resumeSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  test("rejects invalid month abbreviations and extra spaces", () => {
-    expect(
-      resumeSchema.safeParse({
-        ...minimalResume,
-        employment: [{ ...roleWithDates("Foo 2020", "Present") }],
-      }).success,
-    ).toBe(false);
+  test("rejects invalid month abbreviations", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Foo 2020", "Present") }],
+    });
 
-    expect(
-      resumeSchema.safeParse({
-        ...minimalResume,
-        employment: [{ ...roleWithDates("Jan  2020", "Present") }],
-      }).success,
-    ).toBe(false);
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects extra spaces around dates", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jan  2020", "Present") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects chronologically impossible date ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Dec 2020", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(false);
   });
 
   test("rejects Present as a start date", () => {
@@ -127,7 +138,36 @@ describe("resumeSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  test("validates dates in education and courses", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      education: [{ ...datedItemWithDates("Sep 2014", "Jun 2018") }],
+      courses: [{ ...datedItemWithDates("Mar 2024", "May 2024") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects invalid dates in education", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      education: [{ ...datedItemWithDates("Foo 2020", "Jun 2021") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
+
+function datedItemWithDates(start: string, end: string) {
+  return {
+    start,
+    end,
+    title: "Bachelor of Science",
+    institution: "Example University",
+    location: "Remote",
+  };
+}
 
 function roleWithDates(start: string, end: string) {
   return {
