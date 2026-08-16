@@ -21,42 +21,59 @@ const monthIndex = Object.fromEntries(
   MONTH_OPTIONS.map((month, index) => [month.toLowerCase(), index]),
 );
 
-function trimmedDateSchema(pattern: RegExp, message: string) {
+const PRESENT_PATTERN = /^present$/i;
+const YEAR_PATTERN = /^(\d{4})$/;
+const MONTH_YEAR_PATTERN = new RegExp(`^((?:${MONTHS})) (\\d{4})$`, "i");
+
+function normalizeDate(value: string): string {
+  const trimmed = value.trim();
+
+  if (PRESENT_PATTERN.test(trimmed)) {
+    return "Present";
+  }
+
+  const monthYearMatch = MONTH_YEAR_PATTERN.exec(trimmed);
+  if (monthYearMatch) {
+    const month = monthYearMatch[1];
+    return `${month[0].toUpperCase()}${month.slice(1).toLowerCase()} ${monthYearMatch[2]}`;
+  }
+
+  return trimmed;
+}
+
+function dateSchema(pattern: RegExp, message: string) {
   return z
     .string()
-    .transform((value) => value.trim())
+    .transform(normalizeDate)
     .pipe(z.string().regex(pattern, message));
 }
 
-const startDateStringSchema = trimmedDateSchema(
-  new RegExp(`^(?:\\d{4}|${MONTH_YEAR})$`, "i"),
+const startDateStringSchema = dateSchema(
+  new RegExp(`^(?:\\d{4}|${MONTH_YEAR})$`),
   "Date must be 'YYYY' or 'Mon YYYY'",
 );
 
-const endDateStringSchema = trimmedDateSchema(
-  new RegExp(`^(?:Present|\\d{4}|${MONTH_YEAR})$`, "i"),
+const endDateStringSchema = dateSchema(
+  new RegExp(`^(?:Present|\\d{4}|${MONTH_YEAR})$`),
   "Date must be 'Present', 'YYYY', or 'Mon YYYY'",
 );
 
-function parseDate(value: string): Date | undefined {
+function parseDate(value: string): number | undefined {
   const trimmed = value.trim();
 
-  if (/^present$/i.test(trimmed)) {
-    return new Date();
+  if (PRESENT_PATTERN.test(trimmed)) {
+    return Number.POSITIVE_INFINITY;
   }
 
-  const yearMatch = /^(\d{4})$/.exec(trimmed);
+  const yearMatch = YEAR_PATTERN.exec(trimmed);
   if (yearMatch) {
-    return new Date(Number(yearMatch[1]), 0, 1);
+    return Date.UTC(Number(yearMatch[1]), 0, 1);
   }
 
-  const monthYearMatch = new RegExp(
-    `^((?:${MONTHS})) (\\d{4})$`,
-    "i",
-  ).exec(trimmed);
+  const monthYearMatch = MONTH_YEAR_PATTERN.exec(trimmed);
   if (monthYearMatch) {
     const month = monthIndex[monthYearMatch[1].toLowerCase()];
-    return new Date(Number(monthYearMatch[2]), month, 1);
+    return Date.UTC(Number(monthYearMatch[2]), month, 1);
   }
 
   return undefined;
@@ -65,7 +82,16 @@ function parseDate(value: string): Date | undefined {
 function validateChronologicalOrder(data: { start: string; end: string }) {
   const start = parseDate(data.start);
   const end = parseDate(data.end);
-  return !start || !end || start <= end;
+  return start !== undefined && end !== undefined && start <= end;
+}
+
+function withChronologicalDates<Schema extends z.ZodType<{ start: string; end: string }>>(
+  schema: Schema,
+) {
+  return schema.refine(validateChronologicalOrder, {
+    message: "End date must be on or after start date",
+    path: ["end"],
+  });
 }
 
 const linkSchema = z.object({
@@ -82,8 +108,8 @@ const profileSchema = z.object({
   links: z.array(linkSchema),
 });
 
-const employmentSchema = z
-  .object({
+const employmentSchema = withChronologicalDates(
+  z.object({
     start: startDateStringSchema,
     end: endDateStringSchema,
     title: z.string().min(1),
@@ -92,24 +118,18 @@ const employmentSchema = z
     summary: z.string().default(""),
     highlights: z.array(z.string()).default([]),
     technologies: z.array(z.string()).default([]),
-  })
-  .refine(validateChronologicalOrder, {
-    message: "End date must be on or after start date",
-    path: ["end"],
-  });
+  }),
+);
 
-const datedItemSchema = z
-  .object({
+const datedItemSchema = withChronologicalDates(
+  z.object({
     start: startDateStringSchema,
     end: endDateStringSchema,
     title: z.string().min(1),
     institution: z.string().optional(),
     location: z.string().default(""),
-  })
-  .refine(validateChronologicalOrder, {
-    message: "End date must be on or after start date",
-    path: ["end"],
-  });
+  }),
+);
 
 const coverLetterSchema = z.object({
   fileName: z.string().min(1),

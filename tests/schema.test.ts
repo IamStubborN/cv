@@ -157,6 +157,37 @@ describe("resumeSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  test("rejects chronologically impossible course ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      courses: [{ ...datedItemWithDates("May 2024", "Mar 2024") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects chronologically impossible earlier experience ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      earlierExperience: [{ ...roleWithDates("Dec 2015", "Jan 2015") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("normalizes surrounding whitespace and letter case in dates", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("  jan 2020  ", " present ") }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0]).toMatchObject({
+      start: "Jan 2020",
+      end: "Present",
+    });
+  });
 });
 
 function datedItemWithDates(start: string, end: string) {
