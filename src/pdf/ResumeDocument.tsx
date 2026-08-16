@@ -307,7 +307,7 @@ function ExperienceSection({
       {items.map((job, index) => (
         <View
           key={`${job.start}-${job.company}-${job.title}`}
-          style={employmentEntryStyle(index)}
+          style={employmentEntryStyle(index, items)}
         >
           <Text style={styles.itemTitle}>
             {job.title}, {job.company}
@@ -335,12 +335,19 @@ function ExperienceSection({
   );
 }
 
-function employmentEntryStyle(index: number) {
+function isLongEmploymentEntry(job: Resume["employment"][number]): boolean {
+  return job.highlights.length >= 5 || (job.summary ? job.summary.length > 120 : false);
+}
+
+function employmentEntryStyle(
+  index: number,
+  items: Resume["employment"],
+) {
   if (index === 0) {
     return styles.entryFirst;
   }
 
-  if (index === 3) {
+  if (isLongEmploymentEntry(items[index - 1])) {
     return { ...styles.entryLater, ...styles.entryAfterLongRole };
   }
 

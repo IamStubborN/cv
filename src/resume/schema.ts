@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const dateStringSchema = z
+  .string()
+  .min(1)
+  .regex(
+    /^(Present|[A-Z][a-z]{2}\s+\d{4}|\d{4})$/,
+    "Date must be 'Present', 'YYYY', or 'Mon YYYY'",
+  );
+
 const linkSchema = z.object({
   label: z.string().min(1),
   url: z.string().min(1),
@@ -15,8 +23,8 @@ const profileSchema = z.object({
 });
 
 const employmentSchema = z.object({
-  start: z.string().min(1),
-  end: z.string().min(1),
+  start: dateStringSchema,
+  end: dateStringSchema,
   title: z.string().min(1),
   company: z.string().min(1),
   location: z.string().min(1),
@@ -26,8 +34,8 @@ const employmentSchema = z.object({
 });
 
 const datedItemSchema = z.object({
-  start: z.string().min(1),
-  end: z.string().min(1),
+  start: dateStringSchema,
+  end: dateStringSchema,
   title: z.string().min(1),
   institution: z.string().optional(),
   location: z.string().default(""),
