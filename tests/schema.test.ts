@@ -176,6 +176,15 @@ describe("resumeSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  test("treats a year-only end date as the end of that year", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jun 2016", "2016") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   test("normalizes surrounding whitespace and letter case in dates", () => {
     const result = resumeSchema.safeParse({
       ...minimalResume,

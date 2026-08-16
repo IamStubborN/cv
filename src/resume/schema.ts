@@ -58,7 +58,18 @@ const endDateStringSchema = dateSchema(
   "Date must be 'Present', 'YYYY', or 'Mon YYYY'",
 );
 
-function parseDate(value: string): number | undefined {
+function monthTimestamp(year: number, month: number): number {
+  const date = new Date(Date.UTC(2000, month, 1));
+  date.setUTCFullYear(year);
+  return date.getTime();
+}
+
+/**
+ * Resolves a date to a UTC timestamp. A year without a month is resolved to the
+ * first month for `start` and the last month for `end`, so ranges such as
+ * `Jun 2016 - 2016` stay valid.
+ */
+function parseDate(value: string, boundary: "start" | "end"): number | undefined {
   const trimmed = value.trim();
 
   if (PRESENT_PATTERN.test(trimmed)) {
@@ -67,21 +78,21 @@ function parseDate(value: string): number | undefined {
 
   const yearMatch = YEAR_PATTERN.exec(trimmed);
   if (yearMatch) {
-    return Date.UTC(Number(yearMatch[1]), 0, 1);
+    return monthTimestamp(Number(yearMatch[1]), boundary === "start" ? 0 : 11);
   }
 
   const monthYearMatch = MONTH_YEAR_PATTERN.exec(trimmed);
   if (monthYearMatch) {
     const month = monthIndex[monthYearMatch[1].toLowerCase()];
-    return Date.UTC(Number(monthYearMatch[2]), month, 1);
+    return monthTimestamp(Number(monthYearMatch[2]), month);
   }
 
   return undefined;
 }
 
 function validateChronologicalOrder(data: { start: string; end: string }) {
-  const start = parseDate(data.start);
-  const end = parseDate(data.end);
+  const start = parseDate(data.start, "start");
+  const end = parseDate(data.end, "end");
   return start !== undefined && end !== undefined && start <= end;
 }
 
