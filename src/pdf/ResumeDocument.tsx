@@ -291,6 +291,9 @@ function SkillsSection({ resume }: { resume: Resume }) {
   );
 }
 
+const LONG_ROLE_HIGHLIGHTS_THRESHOLD = 5;
+const LONG_ROLE_SUMMARY_THRESHOLD = 120;
+
 function ExperienceSection({
   title,
   items,
@@ -304,50 +307,57 @@ function ExperienceSection({
 
   return (
     <Section title={title}>
-      {items.map((job, index) => (
-        <View
-          key={`${job.start}-${job.company}-${job.title}`}
-          style={employmentEntryStyle(index, items)}
-        >
-          <Text style={styles.itemTitle}>
-            {job.title}, {job.company}
-          </Text>
-          <Text style={styles.dateLine}>
-            {formatDateRange(job.start, job.end)} · {job.location}
-          </Text>
-          {job.summary ? (
-            <Text style={styles.paragraph}>{renderPdfText(job.summary)}</Text>
-          ) : null}
-          {job.highlights.map((highlight) => (
-            <View key={highlight} style={styles.bulletRow} wrap={false}>
-              <Text style={styles.bullet}>•</Text>
-              <Text style={styles.bulletText}>{renderPdfText(highlight)}</Text>
-            </View>
-          ))}
-          {job.technologies.length > 0 ? (
-            <Text style={styles.technologies}>
-              Technologies: {renderPdfText(job.technologies.join(", "))}
+      {items.map((job, index) => {
+        const previousJob = items[index - 1];
+        const needsExtraSpace = previousJob
+          ? isLongEmploymentEntry(previousJob)
+          : false;
+
+        return (
+          <View
+            key={`${job.start}-${job.company}-${job.title}`}
+            style={employmentEntryStyle(index, needsExtraSpace)}
+          >
+            <Text style={styles.itemTitle}>
+              {job.title}, {job.company}
             </Text>
-          ) : null}
-        </View>
-      ))}
+            <Text style={styles.dateLine}>
+              {formatDateRange(job.start, job.end)} · {job.location}
+            </Text>
+            {job.summary ? (
+              <Text style={styles.paragraph}>{renderPdfText(job.summary)}</Text>
+            ) : null}
+            {job.highlights.map((highlight) => (
+              <View key={highlight} style={styles.bulletRow} wrap={false}>
+                <Text style={styles.bullet}>•</Text>
+                <Text style={styles.bulletText}>{renderPdfText(highlight)}</Text>
+              </View>
+            ))}
+            {job.technologies.length > 0 ? (
+              <Text style={styles.technologies}>
+                Technologies: {renderPdfText(job.technologies.join(", "))}
+              </Text>
+            ) : null}
+          </View>
+        );
+      })}
     </Section>
   );
 }
 
 function isLongEmploymentEntry(job: Resume["employment"][number]): boolean {
-  return job.highlights.length >= 5 || (job.summary ? job.summary.length > 120 : false);
+  return (
+    job.highlights.length >= LONG_ROLE_HIGHLIGHTS_THRESHOLD ||
+    job.summary.trim().length > LONG_ROLE_SUMMARY_THRESHOLD
+  );
 }
 
-function employmentEntryStyle(
-  index: number,
-  items: Resume["employment"],
-) {
+function employmentEntryStyle(index: number, needsExtraSpace: boolean) {
   if (index === 0) {
     return styles.entryFirst;
   }
 
-  if (isLongEmploymentEntry(items[index - 1])) {
+  if (needsExtraSpace) {
     return { ...styles.entryLater, ...styles.entryAfterLongRole };
   }
 

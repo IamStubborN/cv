@@ -81,4 +81,63 @@ describe("resumeSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  test("accepts valid date formats for employment", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("2017", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("accepts Present only as an end date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [
+        { ...roleWithDates("Jan 2020", "Present") },
+        { ...roleWithDates("Jan 2017", "Dec 2019") },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects invalid month abbreviations and extra spaces", () => {
+    expect(
+      resumeSchema.safeParse({
+        ...minimalResume,
+        employment: [{ ...roleWithDates("Foo 2020", "Present") }],
+      }).success,
+    ).toBe(false);
+
+    expect(
+      resumeSchema.safeParse({
+        ...minimalResume,
+        employment: [{ ...roleWithDates("Jan  2020", "Present") }],
+      }).success,
+    ).toBe(false);
+  });
+
+  test("rejects Present as a start date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Present", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
+
+function roleWithDates(start: string, end: string) {
+  return {
+    start,
+    end,
+    title: "Engineer",
+    company: "Example Inc",
+    location: "Remote",
+    summary: "",
+    highlights: [],
+    technologies: [],
+  };
+}
