@@ -81,4 +81,192 @@ describe("resumeSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  test("accepts valid date formats for employment", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("2017", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("accepts Present as a valid end date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [
+        { ...roleWithDates("Jan 2020", "Present") },
+        { ...roleWithDates("Jan 2017", "Dec 2019") },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects invalid month abbreviations", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Foo 2020", "Present") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("collapses repeated spaces inside dates", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jan  2020", "Present") }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0].start).toBe("Jan 2020");
+  });
+
+  test("rejects chronologically impossible date ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Dec 2020", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects Present as a start date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Present", "Jan 2020") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("validates dates in education and courses", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      education: [{ ...datedItemWithDates("Sep 2014", "Jun 2018") }],
+      courses: [{ ...datedItemWithDates("Mar 2024", "May 2024") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects invalid dates in education", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      education: [{ ...datedItemWithDates("Foo 2020", "Jun 2021") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects chronologically impossible course ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      courses: [{ ...datedItemWithDates("May 2024", "Mar 2024") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects chronologically impossible earlier experience ranges", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      earlierExperience: [{ ...roleWithDates("Dec 2015", "Jan 2015") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("treats a year-only end date as the end of that year", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jun 2016", "2016") }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("normalizes surrounding whitespace and letter case in dates", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("  jan 2020  ", " present ") }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0]).toMatchObject({
+      start: "Jan 2020",
+      end: "Present",
+    });
+  });
+
+  test.each([
+    ["January 2020", "Jan 2020"],
+    ["Jan. 2020", "Jan 2020"],
+    ["Sept 2020", "Sep 2020"],
+    ["2020-01", "Jan 2020"],
+    ["2020-12", "Dec 2020"],
+  ])("normalizes %s to the canonical form", (input, expected) => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates(input, "Present") }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0].start).toBe(expected);
+  });
+
+  test.each(["current", "Now", "ongoing", "to date"])(
+    "normalizes %s to Present",
+    (input) => {
+      const result = resumeSchema.safeParse({
+        ...minimalResume,
+        employment: [{ ...roleWithDates("Jan 2020", input) }],
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data?.employment[0].end).toBe("Present");
+    },
+  );
+
+  test("accepts a bare year that YAML parses as a number", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("Jan 2019", "Present"), start: 2019, end: 2020 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0]).toMatchObject({ start: "2019", end: "2020" });
+  });
+
+  test("rejects an invalid month number in an ISO-style date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("2020-13", "Present") }],
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
+
+function datedItemWithDates(start: string, end: string) {
+  return {
+    start,
+    end,
+    title: "Bachelor of Science",
+    institution: "Example University",
+    location: "Remote",
+  };
+}
+
+function roleWithDates(start: string, end: string) {
+  return {
+    start,
+    end,
+    title: "Engineer",
+    company: "Example Inc",
+    location: "Remote",
+    summary: "",
+    highlights: [],
+    technologies: [],
+  };
+}
