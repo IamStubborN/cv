@@ -14,32 +14,63 @@ const MONTH_OPTIONS = [
   "Nov",
   "Dec",
 ] as const;
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
 const MONTHS = MONTH_OPTIONS.join("|");
 const MONTH_YEAR = `(?:${MONTHS}) \\d{4}`;
 
-const monthIndex = Object.fromEntries(
-  MONTH_OPTIONS.map((month, index) => [month.toLowerCase(), index]),
-);
+const monthIndex = new Map<string, number>();
+for (const [index, name] of MONTH_NAMES.entries()) {
+  const lower = name.toLowerCase();
+  monthIndex.set(lower, index);
+  monthIndex.set(lower.slice(0, 3), index);
+  monthIndex.set(lower.slice(0, 4), index);
+}
 
-const PRESENT_PATTERN = /^present$/i;
+/** Written forms accepted for an ongoing role, all normalized to `Present`. */
+const PRESENT_PATTERN = /^(?:present|current|now|ongoing|to date|till date)$/i;
 const YEAR_PATTERN = /^(\d{4})$/;
-const MONTH_YEAR_PATTERN = new RegExp(`^((?:${MONTHS})) (\\d{4})$`, "i");
+/** Accepts `Jan 2020`, `Jan. 2020`, `January 2020`, `Sept 2020` and `2020-01`. */
+const MONTH_YEAR_PATTERN = /^([A-Za-z]{3,9})\.?,? (\d{4})$/;
+const ISO_MONTH_PATTERN = /^(\d{4})-(0[1-9]|1[0-2])$/;
 
+/** Rewrites the supported spellings into the canonical `Present`/`YYYY`/`Mon YYYY` forms. */
 function normalizeDate(value: string): string {
-  const trimmed = value.trim();
+  const trimmed = value.trim().replace(/\s+/g, " ");
 
   if (PRESENT_PATTERN.test(trimmed)) {
     return "Present";
   }
 
+  const isoMatch = ISO_MONTH_PATTERN.exec(trimmed);
+  if (isoMatch) {
+    return `${MONTH_OPTIONS[Number(isoMatch[2]) - 1]} ${isoMatch[1]}`;
+  }
+
   const monthYearMatch = MONTH_YEAR_PATTERN.exec(trimmed);
   if (monthYearMatch) {
-    const month = monthYearMatch[1];
-    return `${month[0].toUpperCase()}${month.slice(1).toLowerCase()} ${monthYearMatch[2]}`;
+    const month = monthIndex.get(monthYearMatch[1].toLowerCase());
+    if (month !== undefined) {
+      return `${MONTH_OPTIONS[month]} ${monthYearMatch[2]}`;
+    }
   }
 
   return trimmed;
 }
+
+const DATE_FORMAT_HINT = "'YYYY' (2020), 'Mon YYYY' (Jan 2020), 'January 2020' or '2020-01'";
 
 function dateSchema(pattern: RegExp, message: string) {
   return z
@@ -50,12 +81,12 @@ function dateSchema(pattern: RegExp, message: string) {
 
 const startDateStringSchema = dateSchema(
   new RegExp(`^(?:\\d{4}|${MONTH_YEAR})$`),
-  "Date must be 'YYYY' or 'Mon YYYY'",
+  `Date must be ${DATE_FORMAT_HINT}`,
 );
 
 const endDateStringSchema = dateSchema(
   new RegExp(`^(?:Present|\\d{4}|${MONTH_YEAR})$`),
-  "Date must be 'Present', 'YYYY', or 'Mon YYYY'",
+  `Date must be 'Present', ${DATE_FORMAT_HINT}`,
 );
 
 function monthTimestamp(year: number, month: number): number {
@@ -83,8 +114,10 @@ function parseDate(value: string, boundary: "start" | "end"): number | undefined
 
   const monthYearMatch = MONTH_YEAR_PATTERN.exec(trimmed);
   if (monthYearMatch) {
-    const month = monthIndex[monthYearMatch[1].toLowerCase()];
-    return monthTimestamp(Number(monthYearMatch[2]), month);
+    const month = monthIndex.get(monthYearMatch[1].toLowerCase());
+    if (month !== undefined) {
+      return monthTimestamp(Number(monthYearMatch[2]), month);
+    }
   }
 
   return undefined;

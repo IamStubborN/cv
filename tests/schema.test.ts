@@ -112,13 +112,14 @@ describe("resumeSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  test("rejects extra spaces around dates", () => {
+  test("collapses repeated spaces inside dates", () => {
     const result = resumeSchema.safeParse({
       ...minimalResume,
       employment: [{ ...roleWithDates("Jan  2020", "Present") }],
     });
 
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0].start).toBe("Jan 2020");
   });
 
   test("rejects chronologically impossible date ranges", () => {
@@ -196,6 +197,44 @@ describe("resumeSchema", () => {
       start: "Jan 2020",
       end: "Present",
     });
+  });
+
+  test.each([
+    ["January 2020", "Jan 2020"],
+    ["Jan. 2020", "Jan 2020"],
+    ["Sept 2020", "Sep 2020"],
+    ["2020-01", "Jan 2020"],
+    ["2020-12", "Dec 2020"],
+  ])("normalizes %s to the canonical form", (input, expected) => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates(input, "Present") }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.employment[0].start).toBe(expected);
+  });
+
+  test.each(["current", "Now", "ongoing", "to date"])(
+    "normalizes %s to Present",
+    (input) => {
+      const result = resumeSchema.safeParse({
+        ...minimalResume,
+        employment: [{ ...roleWithDates("Jan 2020", input) }],
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data?.employment[0].end).toBe("Present");
+    },
+  );
+
+  test("rejects an invalid month number in an ISO-style date", () => {
+    const result = resumeSchema.safeParse({
+      ...minimalResume,
+      employment: [{ ...roleWithDates("2020-13", "Present") }],
+    });
+
+    expect(result.success).toBe(false);
   });
 });
 

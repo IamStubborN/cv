@@ -23,6 +23,18 @@ Keep real resumes under `private/resumes/`. The entire `private/` directory is i
 
 Each YAML file controls its own output filename through `fileName`. Use `skills` for the compact `Skills:` line in the header and `employment` for role-by-role experience.
 
+### Dates
+
+Every `start`/`end` pair in `employment`, `earlierExperience`, `education`, and `courses` is validated and normalized to one of `2020`, `Jan 2020`, or `Present`. These inputs are accepted and rewritten to that canonical form:
+
+| Input | Normalized to |
+| --- | --- |
+| `2020` | `2020` |
+| `Jan 2020`, `jan 2020`, `Jan. 2020`, `January 2020`, `Sept 2020`, `2020-01` | `Jan 2020` |
+| `Present`, `current`, `now`, `ongoing`, `to date` | `Present` |
+
+`Present` is only valid as an `end` date, and `end` must not be earlier than `start`. A year without a month counts as January for `start` and December for `end`, so `Jun 2016 - 2016` stays valid.
+
 An optional `coverLetter` section generates a matching one-page cover letter (with the same header) alongside the resume. It has its own `fileName`, an optional `greeting` and `closing`, and a list of `paragraphs`. When present, the generator writes both PDFs; when absent, only the resume is produced.
 
 The generator can render a single resume or all resumes in a directory, which makes it useful for maintaining multiple people's CVs in the same project.

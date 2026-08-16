@@ -291,8 +291,10 @@ function SkillsSection({ resume }: { resume: Resume }) {
   );
 }
 
-const LONG_ROLE_HIGHLIGHTS_THRESHOLD = 5;
-const LONG_ROLE_SUMMARY_THRESHOLD = 120;
+/** Approximate number of characters that fit on one rendered line of body text. */
+const CHARS_PER_LINE = 95;
+/** Entries taller than this get extra breathing room before the next role. */
+const LONG_ROLE_LINE_THRESHOLD = 14;
 
 function ExperienceSection({
   title,
@@ -345,11 +347,18 @@ function ExperienceSection({
   );
 }
 
+function estimatedLineCount(text: string): number {
+  const length = text.trim().length;
+  return length === 0 ? 0 : Math.ceil(length / CHARS_PER_LINE);
+}
+
 function isLongEmploymentEntry(job: Resume["employment"][number]): boolean {
-  return (
-    job.highlights.length >= LONG_ROLE_HIGHLIGHTS_THRESHOLD ||
-    job.summary.trim().length > LONG_ROLE_SUMMARY_THRESHOLD
-  );
+  const lines =
+    estimatedLineCount(job.summary) +
+    job.highlights.reduce((total, highlight) => total + estimatedLineCount(highlight), 0) +
+    estimatedLineCount(job.technologies.join(", "));
+
+  return lines > LONG_ROLE_LINE_THRESHOLD;
 }
 
 function employmentEntryStyle(index: number, needsExtraSpace: boolean) {
